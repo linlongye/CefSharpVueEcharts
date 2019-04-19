@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <title>TestLib2主页</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+<div id="app">
+    <el-row>
+        <el-col :span="4">
+            <el-tree
+                    :props="props"
+                    :load="loadNode"
+                    lazy
+                    show-checkbox
+                    @check-change="handleCheckChange">
+            </el-tree>
+        </el-col>
+        <el-col :span="20">
+            <v-chart :options="options" style="width: 100%;height:800px;"/>
+        </el-col>
+    </el-row>
+</div>
+</body>
+<script src="./js/vue.min.js"></script>
+<!-- 引入组件库 -->
+<script src="./js/element-ui.js"></script>
+<script src="./js/echarts.min.js"></script>
+<script src="./js/vue-echarts.js"></script>
+<script>
+    Vue.component('v-chart', VueECharts);
+    new Vue({
+        el: "#app",
+        data: function () {
+            return {
+                props: {
+                    label: 'name',
+                    children: 'zones'
+                },
+                count: 1,
+                myChart: {},
+                options: {
+                    //定义一个标题
+                    title: {
+                        text: '测试成绩'
+                    },
+                    legend: {
+                        data: ['销量']
+                    },
+                    //X轴设置
+                    xAxis: {
+                        data: ['60分', '70分', '80分', '90分', '100分']
+                    },
+                    yAxis: {},
+                    //name=legend.data的时候才能显示图例
+                    series: [{
+                        name: '销量',
+                        type: 'bar',
+                        data: ['12', '32', '45', '21', '1']
+                    }]
+
+                }
+            }
+        },
+        mounted() {
+            window.addEventListener("resize", () => {
+                this.myChart.resize();
+            })
+        },
+        methods: {
+            handleCheckChange(data, checked, indeterminate) {
+                console.log(data, checked, indeterminate);
+            },
+            handleNodeClick(data) {
+                console.log(data);
+            },
+            loadNode(node, resolve) {
+                if (node.level === 0) {
+                    return resolve([{name: 'region1'}, {name: 'region2'}]);
+                }
+                if (node.level > 3) return resolve([]);
+
+                var hasChild;
+                if (node.data.name === 'region1') {
+                    hasChild = true;
+                } else if (node.data.name === 'region2') {
+                    hasChild = false;
+                } else {
+                    hasChild = Math.random() > 0.5;
+                }
+
+                setTimeout(() => {
+                    var data;
+                    if (hasChild) {
+                        data = [{
+                            name: 'zone' + this.count++
+                        }, {
+                            name: 'zone' + this.count++
+                        }];
+                    } else {
+                        data = [];
+                    }
+
+                    resolve(data);
+                }, 500);
+            }
+        }
+    })
+</script>
+
+</html>
